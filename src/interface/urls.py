@@ -3,7 +3,8 @@ from interface import views
 
 urlpatterns = patterns('interface.views',
 	url(r'^account/login/?', 'sign_in'),	
-	url(r'^account/logout/?', 'sign_out'),	
+	url(r'^account/logout/?', 'sign_out'),
+	url(r'^account/reset/?', 'reset'),	
 	url(r'^workflows/visualize', 'workflow_visualizer'),	
 	url(r'^workflows', 'workflows'),
 	url(r'^tools', 'tools'),

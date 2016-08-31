@@ -13,11 +13,18 @@ class Country(models.Model):
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User)
+	
+	DoB = models.DateField(null=True, blank=True)
+	Field = models.CharField(null=True, blank=True, max_length=50)
 	Company = models.CharField(null=True, blank=True, max_length=50)
 	Country = models.ForeignKey(Country, null=True, blank=True)
 	Blurb = models.TextField(null=True, blank=True)
-	DoB = models.DateField(null=True, blank=True)
-	Code = models.TextField(null=True, blank=True)
+	
+	ServerUser =  models.CharField(null=True, blank=True, max_length=50)
+	
+	ResetToken = models.IntegerField(null=True, blank=True)
+	ResetCode = models.IntegerField(null=True, blank=True)
+	FailCount = models.IntegerField(null=True, blank=True)
 	
 	class Meta:
 		db_table = 'UserProfiles'
