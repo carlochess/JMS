@@ -13,7 +13,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'jms',                      # Or path to database file if using sqlite3.
+        'NAME': 'JMSDB',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': 'jms',
         'PASSWORD': 'password',
@@ -196,9 +196,12 @@ JMS_SETTINGS = {
     },
     "ansible": False,
     "modules": False,
-    "impersonator": {
-        "key": os.path.join(BASE_DIR, "impersonator/pub.key"),
-        "port": "8123"
+    "user_processes": {
+        "mode": "ssh",
+        "host": "127.0.0.1"
+        #"mode": "impersonator"
+        #"key": os.path.join(BASE_DIR, "impersonator/pub.key"),
+        #"port": "8123"
     },
     "filemanager": {
         "root_url": os.path.join(shared_directory, "users/"),
@@ -214,10 +217,10 @@ FILEMANAGER_SETTINGS = {
 
 
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.live.com'
+EMAIL_HOST = 'host.email.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'example@example.com'
-EMAIL_HOST_PASSWORD = 'example'
+EMAIL_HOST_USER = 'user@email.com'
+EMAIL_HOST_PASSWORD = 'password'
  
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
