@@ -16,17 +16,25 @@ from resource_managers import objects
 from utilities.io.filesystem import *
  
 from multiprocessing.pool import ThreadPool
-import shutil, json, requests, traceback, sys
+import shutil, json, traceback, sys
 
-import shutil, json, requests, traceback, sys
+
 
 #dynamically import the resource manager module
 module_name = settings.JMS_SETTINGS["resource_manager"]["name"]
-module = __import__('jobs.JMS.resource_managers.%s' % module_name, 
-    fromlist=[module_name])
+module = __import__('jobs.JMS.resource_managers.%s' % module_name, fromlist=[module_name])
 
 #get the resource manager class from the module
 ResourceManager = getattr(module, module_name)
+
+#set mode to spawn user processes
+mode = settings.JMS_SETTINGS["user_processes"]["mode"]
+if mode == "impersonator":
+    run_process = run_impersonator
+elif mode == "ssh":
+    run_process = run_ssh
+
+
 
 class JobManager:
     
@@ -44,17 +52,16 @@ class JobManager:
             self.jobs_dir = os.path.join(self.user_dir, "jobs/")
     
     
-    def RunUserProcess(self, cmd, expect="prompt", sudo=False, user=None):
+    def RunUserProcess(self, cmd, sudo=False, user=None):
         if not user:
             user = self.user
         
-        payload = "%s\n%s\n%s\n%s" % (user.filemanagersettings.ServerPass, cmd, expect, str(sudo))
-        #File.print_to_file("/tmp/files.txt", payload, permissions=0777)
+        out, err, status = run_process(user, cmd, sudo)
         
-        r = requests.post("http://127.0.0.1:%s/impersonate" % settings.JMS_SETTINGS["impersonator"]["port"], data=payload)
-        #File.print_to_file("/tmp/files.txt", payload, mode="a", permissions=0777)
-        
-        return r.text
+        if status == 0:
+            return out
+        else:
+            raise Exception(err)
     
     
     #with web server permissions
@@ -1073,7 +1080,7 @@ class JobManager:
                 #print >> f, "Working on %s" % row.job_id
                 #print >> f, jobstage
                 
-                if jobstage: # if the job exists in the database and the status has changed
+                if jobstage: # if the job exists in the database
                     
                     new_status = row.state
                     old_status = jobstage.Status.StatusID
@@ -1200,13 +1207,7 @@ class JobManager:
                 Directory.copy_directory(dep_js.WorkingDirectory, 
                     js.WorkingDirectory, permissions=0777, replace=False,
                     exclude=[os.path.join(dep_js.WorkingDirectory, "logs")])
-                    
-            
-        
-        
-        
-        
-        
-        
-        
-        
+    
+    
+    
+    
