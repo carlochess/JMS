@@ -4,7 +4,7 @@ from django.db import transaction
 
 
 
-def reset_password(reset_token, reset_code, password)
+def reset_password(reset_token, reset_code, password):
     try:
         up = UserProfile.objects.get(ResetToken=reset_token)
     except Exception, ex:

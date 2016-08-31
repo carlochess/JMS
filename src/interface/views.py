@@ -75,23 +75,23 @@ def sign_in(request):
 
 
 def reset(request):
-	if request.method == 'GET':
-    	c = {}
-    	c.update(csrf(request))
-    	
-    	token = request.GET.get("token", False)
-    	email = User.objects.get(ResetToken=token).email
-    	
-    	return render(request, 'layout/reset.html', locals())
-    
-	elif request.method == 'POST':
-	    reset_token = request.POST['reset_token']
-		reset_code = request.POST['reset_code']
-		password = request.POST['password']
-		
-		message, status = helpers.reset_password(reset_token, reset_code, password)
-		
-		return redirect("/")
+    if request.method == 'GET':
+        c = {}
+        c.update(csrf(request))
+        
+        token = request.GET.get("token", False)
+        email = User.objects.get(ResetToken=token).email
+        
+        return render(request, 'layout/reset.html', locals())
+        
+    elif request.method == 'POST':
+        reset_token = request.POST['reset_token']
+        reset_code = request.POST['reset_code']
+        password = request.POST['password']
+        
+        message, status = helpers.reset_password(reset_token, reset_code, password)
+        
+        return redirect("/")
 
 
 @login_required(login_url="/account/login")			

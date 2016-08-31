@@ -19,6 +19,8 @@ from exceptions import *
 
 from django.conf import settings
 
+#from jobs.JMS import JobManager
+
 class BaseResourceManager:
     
     def __init__(self, user):
@@ -26,13 +28,30 @@ class BaseResourceManager:
     
     def RunUserProcess(self, cmd, expect="prompt", sudo=False):
         if self.user:
-            payload = "%s\n%s\n%s\n%s" % (self.user.filemanagersettings.ServerPass, cmd, expect, str(sudo))
-            r = requests.post("http://127.0.0.1:%s/impersonate" % settings.JMS_SETTINGS["impersonator"]["port"], data=payload)
-            return r.text
+            '''
+            jms = JobManager(self.user)
+            out, err, status = jms.RunUserProcess(cmd, expect=expect, sudo=sudo)
+            return out
+            '''
+            #set mode to spawn user processes
+            mode = settings.JMS_SETTINGS["user_processes"]["mode"]
+            if mode == "impersonator":
+                payload = "%s\n%s\n%s\n%s" % (self.user.filemanagersettings.ServerPass, cmd, expect, str(sudo))
+                r = requests.post("http://127.0.0.1:%s/impersonate" % settings.JMS_SETTINGS["user_processes"]["port"], data=payload)
+                
+                return r.text#, None, r.status_code
+            elif mode == "ssh":
+                cmd = "ssh %s@%s %s" % (self.user.username, settings.JMS_SETTINGS["user_processes"]["host"], cmd)
+                
+                process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                out, err = process.communicate()
+                
+                return out#, err, process.returncode
+            
         else:
             process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, close_fds=True)
             out, err = process.communicate()
-            return out
+            return out#, err, process.returncode
     
     def GetDashboard(self):
         return Dashboard(self.GetNodes(), self.GetQueue(), self.GetDiskUsage(settings.JMS_SETTINGS["JMS_shared_directory"]))

@@ -56,7 +56,7 @@ def run_impersonator(user, cmd, sudo=False, expect="prompt"):
     payload = "%s\n%s\n%s\n%s" % (user.filemanagersettings.ServerPass, cmd, expect, str(sudo))
     #File.print_to_file("/tmp/files.txt", payload, permissions=0777)
     
-    r = requests.post("http://127.0.0.1:%s/impersonate" % settings.JMS_SETTINGS["impersonator"]["port"], data=payload)
+    r = requests.post("http://127.0.0.1:%s/impersonate" % settings.JMS_SETTINGS["user_processes"]["port"], data=payload)
     #File.print_to_file("/tmp/files.txt", payload, mode="a", permissions=0777)
     
     return r.text, None, r.status_code
